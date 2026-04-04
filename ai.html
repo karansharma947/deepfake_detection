@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CyberGuard AI | Forensic OSINT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --primary: #38bdf8;
+            --danger: #f43f5e;
+            --text: #f8fafc;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #020617;
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        input {
+            flex: 1;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #475569;
+            background: #020617;
+            color: white;
+            outline: none;
+        }
+
+        button {
+            padding: 15px 30px;
+            border-radius: 12px;
+            border: none;
+            background: var(--primary);
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        #results {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 15px;
+            border: 1px solid #334155;
+        }
+
+        .critical-border {
+            border: 2px solid var(--danger) !important;
+        }
+
+        .log {
+            font-family: monospace;
+            font-size: 12px;
+            color: #38bdf8;
+            background: #020617;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ CyberGuard AI</h1>
+            <p>Advanced Deepfake Detection & Evidence Hashing</p>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="Paste Instagram/YouTube URL here...">
+            <button onclick="analyze()">ANALYZE</button>
+        </div>
+
+        <div id="loader" style="display:none; text-align:center; margin-top:20px;">⚡ Running AI Pixel Analysis & SHA-256
+            Hashing...</div>
+
+        <div id="results">
+            <h2 id="verdictDisplay" style="text-align: center;">VERDICT</h2>
+            <div class="log">
+                [TIMESTAMP]: <span id="timeLog"></span><br>
+                [HASH]: <span id="hashLog"></span>
+            </div>
+            <button style="background: var(--danger); color: white; width: 100%; margin-top: 20px;"
+                onclick="alert('PDF Report Generated in Project Folder')">GENERATE CRIME BRANCH REPORT</button>
+        </div>
+    </div>
+
+    <script>
+        async function analyze() {
+            const url = document.getElementById('urlInput').value;
+            if (!url) return alert("Please paste a URL!");
+
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+
+            try {
+                // Call the local server
+                const res = await fetch(`/process?video_url=${encodeURIComponent(url)}`);
+                const data = await res.json();
+
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+
+                const verdict = document.getElementById('verdictDisplay');
+                const resultBox = document.getElementById('results');
+
+                verdict.innerText = "VERDICT: " + data.verdict;
+                document.getElementById('hashLog').innerText = data.evidence_hash;
+                document.getElementById('timeLog').innerText = new Date().toLocaleString();
+
+                if (data.verdict === "CRITICAL") {
+                    resultBox.classList.add('critical-border');
+                    verdict.style.color = "#f43f5e";
+                } else {
+                    resultBox.classList.remove('critical-border');
+                    verdict.style.color = "#10b981";
+                }
+            } catch (e) {
+                document.getElementById('loader').style.display = 'none';
+                alert("Error: Make sure the Python server is running!");
+            }
+        }
+    </script>
+</body>
+
+</html>
