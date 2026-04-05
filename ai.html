@@ -109,7 +109,27 @@
             text-align: center;
             margin-bottom: 8px;
         }
-        .verdict-sub { text-align: center; color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; }
+        .verdict-sub { text-align: center; color: var(--muted); font-size: 0.85rem; margin-bottom: 10px; }
+        .detection-method-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(56,189,248,0.08);
+            border: 1px solid rgba(56,189,248,0.25);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+        }
+        .detection-method-badge.danger-badge {
+            background: rgba(244,63,94,0.08);
+            border-color: rgba(244,63,94,0.3);
+            color: var(--danger);
+        }
+        .verdict-center { text-align: center; }
 
         /* ── Confidence ── */
         .score-row { display: flex; align-items: center; gap: 20px; }
@@ -268,6 +288,9 @@
         <div class="card">
             <h2 id="verdictDisplay">VERDICT</h2>
             <p class="verdict-sub" id="verdictSub"></p>
+            <div class="verdict-center">
+                <span class="detection-method-badge" id="detectionBadge">🔍 Detection Engine</span>
+            </div>
 
             <div class="score-row">
                 <div class="score-circle" id="scoreCircle">
@@ -350,6 +373,7 @@
                 [UPLOAD DATE] : <span id="logDate"></span><br>
                 [LOCATION] : <span id="logLocation"></span><br>
                 [UPLOADER] : <span id="logUploader"></span><br>
+                [DETECTION ENGINE] : <span id="logEngine"></span><br>
                 [VERDICT] : <span id="logVerdict"></span><br>
                 [STATUS] : Evidence Sealed — Ready for Cyber Crime Cell
             </div>
@@ -392,6 +416,11 @@
             document.getElementById('verdictSub').innerText = isCritical
                 ? 'This content shows signs of AI manipulation. Evidence has been logged.'
                 : 'No manipulation detected. Content appears genuine.';
+
+            // ── Detection Method Badge ──
+            const badge = document.getElementById('detectionBadge');
+            badge.innerText = '🔍 ' + (data.detection_method || 'Heuristic Analysis');
+            badge.className = 'detection-method-badge' + (isCritical ? ' danger-badge' : '');
 
             // ── Confidence ──
             const circle = document.getElementById('scoreCircle');
@@ -465,6 +494,7 @@
             document.getElementById('logLocation').innerText = data.india_region
                 ? `${data.location || 'Unknown'} (${data.india_region})` : (data.location || 'Unknown');
             document.getElementById('logUploader').innerText = data.uploader || 'Unknown';
+            document.getElementById('logEngine').innerText = data.detection_method || 'Multi-Signal Heuristic Analysis';
             document.getElementById('logVerdict').innerText = data.verdict;
 
         } catch (err) {
